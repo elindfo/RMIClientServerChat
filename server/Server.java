@@ -5,6 +5,7 @@ import lab2a.client.ChatClient;
 import java.net.MalformedURLException;
 import java.rmi.ConnectException;
 import java.rmi.Naming;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ public class Server extends UnicastRemoteObject implements ChatServer{
 
     @Override
     public synchronized void broadcast(ChatClient fromClient, String message) throws RemoteException {
+        checkClientConnections();
         int sendingClient = getClientRepresentationIndexFromChatClient(fromClient);
         String messageToSend = "";
         if(clients.get(sendingClient).getNickname().equals("")){
@@ -56,6 +58,7 @@ public class Server extends UnicastRemoteObject implements ChatServer{
 
     @Override
     public synchronized void nick(ChatClient fromClient, String nickname) throws RemoteException {
+        checkClientConnections();
         int clientIndex = getClientRepresentationIndexFromChatClient(fromClient);
         boolean nicknameUnavailable = false;
         for(ClientRepresentation cr : clients){
@@ -82,12 +85,14 @@ public class Server extends UnicastRemoteObject implements ChatServer{
 
     @Override
     public synchronized void quit(ChatClient fromClient) throws RemoteException {
+        checkClientConnections();
         broadcast(fromClient, "Disconnected");
         deRegisterForNotification(fromClient);
     }
 
     @Override
     public synchronized void who(ChatClient fromClient) throws RemoteException {
+        checkClientConnections();
         StringBuffer sb = new StringBuffer("*****************");
         sb.append("\n");
         sb.append("CLIENTS ONLINE");
@@ -131,6 +136,25 @@ public class Server extends UnicastRemoteObject implements ChatServer{
         }
         clients.remove(clientIndex);
         System.out.println("Client disconnected: " + disconnectedClient);
+    }
+
+    private void checkClientConnections(){
+        ArrayList<ClientRepresentation> clientsToBeRemoved = new ArrayList<>();
+        for(ClientRepresentation cr : clients){
+            try {
+                cr.getClient().poke();
+            } catch (RemoteException e) {
+                clientsToBeRemoved.add(cr);
+            }
+        }
+        for(ClientRepresentation cr : clientsToBeRemoved){
+            try {
+                deRegisterForNotification(cr.getClient());
+                clients.remove(cr);
+            } catch (RemoteException e) {
+                System.err.println("Unable to deregister client");
+            }
+        }
     }
 
     private int getClientRepresentationIndexFromChatClient(ChatClient client){

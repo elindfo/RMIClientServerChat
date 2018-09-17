@@ -26,6 +26,11 @@ public class Client extends UnicastRemoteObject implements ChatClient{
         System.out.println(message);
     }
 
+    @Override
+    public void poke() throws RemoteException {
+        //Do nothing
+    }
+
     public void start(){
         Scanner input = null;
         String message = "";
