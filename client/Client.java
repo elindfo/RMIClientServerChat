@@ -11,6 +11,8 @@ import java.util.Scanner;
 
 public class Client extends UnicastRemoteObject implements ChatClient{
 
+    //TODO Fixa Remote Exception i start() som kallas på då någon annan klient dcar???
+
     private ChatServer server;
 
     public Client(ChatServer server) throws RemoteException {
@@ -24,24 +26,64 @@ public class Client extends UnicastRemoteObject implements ChatClient{
     }
 
     public void start(){
-        Scanner input = new Scanner(System.in);
+        Scanner input = null;
         String message = "";
         try{
-
+            input = new Scanner(System.in);
+            server.registerForNotification(this);
             do{
                 message = input.nextLine();
-                switch(message){
-                    case "/who": {
-                        break;
+                if(!message.isEmpty()){
+                    if(message.charAt(0) != '/'){ //Not a command
+                        server.broadcast(this, message);
                     }
-                    default:{
-                        server.sendMessage(this, message);
+                    else{ //Command
+                        String[] splitMessage = message.split(" ");
+                        if(splitMessage.length == 1){
+                            switch(splitMessage[0]){
+                                case "/who": {
+                                    server.who(this);
+                                    break;
+                                }
+                                case "/help": {
+                                    server.help(this);
+                                    break;
+                                }
+                                case "/quit": {
+                                    server.quit(this);
+                                    break;
+                                }
+                                default:{
+                                    System.out.println("Invalid command");
+                                }
+                            }
+                        }
+                        else if(splitMessage.length == 2){
+                            switch(splitMessage[0]){
+                                case "/nick": {
+                                    server.nick(this, splitMessage[1]);
+                                    break;
+                                }
+                                default: {
+                                    System.out.println("Invalid command");
+                                }
+                            }
+                        }
+                        else{
+                            System.out.println("Invalid command");
+                        }
                     }
                 }
+                System.out.println("Message:" + message);
             }while(!message.equals("/quit"));
-            server.deRegisterForNotification(this);
+            System.out.println("Loop ended");
+            //server.deRegisterForNotification(this);
         } catch (RemoteException e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
+        } finally{
+            if(input != null){
+                input.close();
+            }
         }
     }
 
@@ -55,7 +97,6 @@ public class Client extends UnicastRemoteObject implements ChatClient{
         try{
             ChatServer server = (ChatServer) Naming.lookup("rmi://" + args[0] + "/chatServer");
             Client client = new Client(server);
-            server.registerForNotification(client);
             client.start();
         } catch (RemoteException e) {
             e.printStackTrace();
