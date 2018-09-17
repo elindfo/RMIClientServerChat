@@ -28,7 +28,7 @@ public class Client extends UnicastRemoteObject implements ChatClient{
 
     @Override
     public void poke() throws RemoteException {
-        //Do nothing
+        //Used by server to check availability
     }
 
     public void start(){
@@ -80,9 +80,7 @@ public class Client extends UnicastRemoteObject implements ChatClient{
                         }
                     }
                 }
-                System.out.println("Message:" + message);
             }while(!message.equals("/quit"));
-            System.out.println("Loop ended");
             //server.deRegisterForNotification(this);
         } catch (ConnectException e) {
             System.err.println("Server not responding");
@@ -107,7 +105,6 @@ public class Client extends UnicastRemoteObject implements ChatClient{
             ChatServer server = (ChatServer) Naming.lookup("rmi://" + args[0] + "/chatServer");
             Client client = new Client(server);
             client.start();
-            System.out.println("Exiting...");
         } catch (RemoteException e) {
             e.printStackTrace();
         } catch (NotBoundException e) {
