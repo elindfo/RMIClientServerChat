@@ -7,10 +7,11 @@ import java.rmi.RemoteException;
 
 public interface ChatServer extends Remote {
 
-    public String help() throws RemoteException;
-    public void nick(String nickname) throws RemoteException;
-    public void quit() throws RemoteException;
-    public String who() throws RemoteException;
+    public void sendMessage(ChatClient client, String message) throws RemoteException;
+    public String help(ChatClient client) throws RemoteException;
+    public void nick(ChatClient client, String nickname) throws RemoteException;
+    public void quit(ChatClient client) throws RemoteException;
+    public String who(ChatClient client) throws RemoteException;
 
     public void registerForNotification(ChatClient client) throws RemoteException;
     public void deRegisterForNotification(ChatClient client) throws RemoteException;

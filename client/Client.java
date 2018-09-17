@@ -25,18 +25,20 @@ public class Client extends UnicastRemoteObject implements ChatClient{
 
     public void start(){
         Scanner input = new Scanner(System.in);
-        int choice;
+        String message = "";
         try{
 
             do{
-                choice = input.nextInt();
-                switch(choice){
-                    case 1: {
-                        server.who();
+                message = input.nextLine();
+                switch(message){
+                    case "/who": {
                         break;
                     }
+                    default:{
+                        server.sendMessage(this, message);
+                    }
                 }
-            }while(choice != 0);
+            }while(!message.equals("/quit"));
             server.deRegisterForNotification(this);
         } catch (RemoteException e) {
             System.err.println(e.getMessage());
