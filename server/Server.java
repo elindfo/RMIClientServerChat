@@ -75,8 +75,10 @@ public class Server extends UnicastRemoteObject implements ChatServer{
     }
 
     private int getClientRepresentationIndexFromChatClient(ChatClient client){
+        System.out.println("getClientRepresentationIndexFromChatClient");
         for(int i = 0; i < clients.size(); i++){
-            if(clients.get(i).getClient() == client){
+            System.out.println("stored:"+clients.get(i).getClient()+" client:"+client);
+            if(clients.get(i).getClient().equals(client)){
                 return i;
             }
         }
