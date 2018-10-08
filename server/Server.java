@@ -83,7 +83,7 @@ public class Server extends UnicastRemoteObject implements ChatServer{
     @Override
     public synchronized void quit(ChatClient fromClient) throws RemoteException {
         broadcast(fromClient, "Disconnected");
-        deRegisterForNotification(fromClient);
+        //deRegisterForNotification(fromClient);
     }
 
     @Override
@@ -123,7 +123,7 @@ public class Server extends UnicastRemoteObject implements ChatServer{
         int clientIndex = 0;
         int disconnectedClient = 0;
         for(int i = 0; i < clients.size(); i++){
-            if(clients.get(i).getClient() == client){
+            if(clients.get(i).getClient().equals(client)){
                 clientIndex = i;
                 disconnectedClient = clients.get(i).getClientNo();
                 break;

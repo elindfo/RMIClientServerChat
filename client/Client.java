@@ -78,7 +78,7 @@ public class Client extends UnicastRemoteObject implements ChatClient{
                 System.out.println("Message:" + message);
             }while(!message.equals("/quit"));
             System.out.println("Loop ended");
-            //server.deRegisterForNotification(this);
+            server.deRegisterForNotification(this);
         } catch (ConnectException e) {
             System.err.println("Server not responding");
             System.exit(0);
