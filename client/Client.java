@@ -103,6 +103,7 @@ public class Client extends UnicastRemoteObject implements ChatClient{
             Client client = new Client(server);
             client.start();
             System.out.println("Exiting...");
+            System.exit(0);
         } catch (RemoteException e) {
             e.printStackTrace();
         } catch (NotBoundException e) {
